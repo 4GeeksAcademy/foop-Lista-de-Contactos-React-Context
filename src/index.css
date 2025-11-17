@@ -1,0 +1,67 @@
+
+body {
+    background-color: #f8f9fa; /* Fondo gris claro */
+}
+
+
+.list-group-item {
+    /* Fondo blanco para cada tarjeta de contacto */
+    background-color: #ffffff;
+    /* Borde suave en la parte superior e inferior para separar */
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    /* Eliminar bordes laterales */
+    border-left: none;
+    border-right: none;
+    /* Espaciado interno generoso */
+    padding: 20px 0;
+    /* Transición para efectos hover */
+    transition: all 0.3s ease;
+}
+
+/* Efecto al pasar el ratón */
+.list-group-item:hover {
+    background-color: #fefefe;
+    /* Una pequeña sombra para destacarlo */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.list-group {
+    /* Eliminar el borde general de la lista para usar el de los ítems */
+    border: none !important;
+}
+
+.list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Estilo para la imagen de perfil (Avatar) */
+.list-group-item .rounded-circle {
+    /* Asegurar que la imagen sea un círculo perfecto */
+    border: 3px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los íconos de información */
+.list-group-item .fas {
+    color: #495057; /* Color oscuro para los íconos */
+    min-width: 20px; /* Asegura un espaciado consistente */
+}
+
+/* Mejorar el diseño en pantallas pequeñas */
+@media (max-width: 576px) {
+    .list-group-item .col-12.col-sm-6.col-md-3 {
+        margin-bottom: 15px; /* Espacio debajo del avatar en móvil */
+    }
+    .list-group-item .float-end {
+        float: none !important;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
