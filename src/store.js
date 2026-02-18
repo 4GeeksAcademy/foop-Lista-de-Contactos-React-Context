@@ -1,42 +1,98 @@
-export const initialStore = () => {
+const getState = ({ getStore, getActions, setStore }) => {
     return {
-        // Lista de contactos
-        contacts: [],
-        // Contacto actualmente seleccionado para editar
-        currentContact: null,
-        // Slug de la agenda que se usará en la API
-        agendaSlug: "seniorteam", 
-        // URL base de la API de contactos
-        apiURL: "https://playground.4geeks.com/contact/agendas/"
-    }
-}
+        store: {
+            contacts: [],
+            slug: "Felix_contact" 
+        },
+        actions: {
+            createAgenda: async () => {
+                const store = getStore();
+                const url = `https://playground.4geeks.com/contact/agendas/${store.slug}`;
+                
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
 
-export default function storeReducer(store, action = {}) {
-    switch (action.type) {
-        
-        // Acción para establecer la lista completa de contactos
-        case 'set_contacts':
-            return {
-                ...store,
-                contacts: action.payload
-            };
+                if (resp.status === 201 || resp.status === 400) {
+                    getActions().getContacts();
+                } else {
+                    console.error("Error creando agenda");
+                }
+            },
 
-        // Acción para establecer el contacto que se está editando
-        case 'set_current_contact':
-            return {
-                ...store,
-                currentContact: action.payload
-            };
+            getContacts: async () => {
+                const store = getStore();
+                const url = `https://playground.4geeks.com/contact/agendas/${store.slug}/contacts`;
 
-        // Acción para limpiar el contacto actual después de una edición/creación
-        case 'clear_current_contact':
-            return {
-                ...store,
-                currentContact: null
-            };
+                const resp = await fetch(url);
+                if (!resp.ok) {
+                    console.error("Error cargando contactos");
+                    return;
+                }
+                const data = await resp.json();
+                if (data.contacts) {
+                    setStore({ contacts: data.contacts });
+                }
+            },
 
-        default:
-            // Es buena práctica devolver el estado si la acción no es reconocida
-            return store;
-    }
-}
+            createContact: async (contactData) => {
+                const store = getStore();
+                const actions = getActions();
+                const url = `https://playground.4geeks.com/contact/agendas/${store.slug}/contacts`;
+
+                const resp = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(contactData)
+                });
+
+                if (resp.ok) {
+                    actions.getContacts();
+                    return true;
+                } else {
+                    console.error("Error creando contacto");
+                    return false;
+                }
+            },
+
+            updateContact: async (id, contactData) => {
+                const store = getStore();
+                const actions = getActions();
+                const url = `https://playground.4geeks.com/contact/agendas/${store.slug}/contacts/${id}`;
+
+                const resp = await fetch(url, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(contactData)
+                });
+
+                if (resp.ok) {
+                    actions.getContacts();
+                    return true;
+                } else {
+                    console.error("Error actualizando contacto");
+                    return false;
+                }
+            },
+
+            deleteContact: async (id) => {
+                const store = getStore();
+                const actions = getActions();
+                const url = `https://playground.4geeks.com/contact/agendas/${store.slug}/contacts/${id}`;
+
+                const resp = await fetch(url, {
+                    method: "DELETE"
+                });
+
+                if (resp.ok) {
+                    actions.getContacts();
+                } else {
+                    console.error("Error eliminando contacto");
+                }
+            }
+        }
+    };
+};
+
+export default getState;
