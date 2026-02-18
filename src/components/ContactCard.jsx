@@ -1,76 +1,44 @@
-import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import React from "react";
+import { Link } from "react-router-dom";
 
-export const ContactCard = ({ contact }) => {
-    const navigate = useNavigate();
-    const { actions } = useGlobalReducer();
-
-    const handleDelete = async (contactId) => {
-        if (window.confirm("¿Estás seguro de que quieres eliminar este contacto?")) {
-            await actions.deleteContact(contactId);
-        }
-    };
-
-    const handleEdit = (contact) => {
-        actions.setContactToEdit(contact);
-        navigate(`/edit/${contact.id}`);
-    };
-
+export const ContactCard = ({ contact, onDelete }) => {
     return (
-        <li className="list-group-item">
-            <div className="row w-100">
-                <div className="col-12 col-sm-6 col-md-3 px-0">
+        <div className="card mb-3 w-100">
+            <div className="row g-0">
+                <div className="col-md-3 d-flex justify-content-center align-items-center">
                     <img 
                         src="https://picsum.photos/200/200" 
-                        alt="Contact Avatar"
-                        className="rounded-circle mx-auto d-block img-fluid" 
-                        style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                        className="img-fluid rounded-circle m-3" 
+                        alt="Profile" 
+                        style={{ width: "120px", height: "120px", objectFit: "cover" }}
                     />
                 </div>
-                <div className="col-12 col-sm-6 col-md-9 text-start">
-                    <div className="float-end">
-                        {/* Botón de Editar */}
-                        <button 
-                            className="btn" 
-                            onClick={() => handleEdit(contact)}
-                        >
-                            <i className="fas fa-pencil-alt me-3" />
-                        </button>
-                        {/* Botón de Eliminar */}
-                        <button 
-                            className="btn" 
-                            onClick={() => handleDelete(contact.id)}
-                        >
-                            <i className="fas fa-trash-alt" />
-                        </button>
+                <div className="col-md-6">
+                    <div className="card-body text-start">
+                        <h5 className="card-title fs-3">{contact.name}</h5>
+                        <p className="card-text text-secondary mb-1">
+                            <i className="fas fa-map-marker-alt me-2"></i>{contact.address}
+                        </p>
+                        <p className="card-text text-secondary mb-1">
+                            <i className="fas fa-phone me-2"></i>{contact.phone}
+                        </p>
+                        <p className="card-text text-secondary">
+                            <i className="fas fa-envelope me-2"></i>{contact.email}
+                        </p>
                     </div>
-                    
-                    <h2 className="mb-0">{contact.name}</h2>
-                    <p className="my-1">
-                        <i className="fas fa-map-marker-alt text-muted me-2" />
-                        {contact.address}
-                    </p>
-                    <p className="my-1">
-                        <i className="fas fa-phone text-muted me-2" />
-                        {contact.phone}
-                    </p>
-                    <p className="my-1">
-                        <i className="fas fa-envelope text-muted me-2" />
-                        {contact.email}
-                    </p>
+                </div>
+                <div className="col-md-3 d-flex justify-content-end p-3">
+                    <Link to={`/edit/${contact.id}`} className="btn btn-link text-dark p-0 me-3">
+                        <i className="fas fa-pencil-alt"></i>
+                    </Link>
+                    <button 
+                        className="btn btn-link text-danger p-0" 
+                        onClick={() => onDelete(contact.id)}
+                    >
+                        <i className="fas fa-trash-alt"></i>
+                    </button>
                 </div>
             </div>
-        </li>
+        </div>
     );
-};
-
-ContactCard.propTypes = {
-    contact: PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
-        address: PropTypes.string.isRequired,
-        phone: PropTypes.string.isRequired,
-        email: PropTypes.string.isRequired,
-    }).isRequired
 };
