@@ -22,7 +22,8 @@ export const router = createBrowserRouter(
 
         {/* Ruta para editar un contacto (reutiliza el mismo componente) */}
         <Route path="/edit/:id" element={<AddContact />} />
-
+        
+        <Route path="*" element={<h1>Not found!</h1>} />
       </Route>
     )
 );
