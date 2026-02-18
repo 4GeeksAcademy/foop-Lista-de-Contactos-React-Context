@@ -1,122 +1,75 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import useGlobalReducer from "../hooks/useGlobalReducer";
-
-const initialFormState = {
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-};
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 export const AddContact = () => {
-    const { id } = useParams(); // Para obtener el ID si estamos en modo edición
+    const { store, actions } = useContext(Context);
     const navigate = useNavigate();
-    const { actions, store } = useGlobalReducer();
+    const { id } = useParams();
 
-    // Inicializa el formulario con el contacto actual (si existe) o con valores vacíos
-    const contactToEdit = id && store.currentContact && store.currentContact.id == id 
-        ? store.currentContact 
-        : null;
+    const [contact, setContact] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        address: ""
+    });
 
-    const [contact, setContact] = useState(contactToEdit || initialFormState);
-
-    // Ajusta el estado si se carga un contacto para edición
     useEffect(() => {
-        if (contactToEdit) {
-            setContact(contactToEdit);
-        } else if (id) {
-
-            setContact(initialFormState);
+        if (id && store.contacts.length > 0) {
+            const currentContact = store.contacts.find(c => c.id == id);
+            if (currentContact) {
+                setContact({
+                    name: currentContact.name,
+                    email: currentContact.email,
+                    phone: currentContact.phone,
+                    address: currentContact.address
+                });
+            }
         }
-    }, [contactToEdit, id]);
+    }, [id, store.contacts]);
 
     const handleChange = (e) => {
-        setContact({
-            ...contact,
-            [e.target.name]: e.target.value,
-        });
+        setContact({ ...contact, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        let success = false;
 
-        // Validaciones básicas (se pueden mejorar)
-        if (!contact.name || !contact.email || !contact.phone || !contact.address) {
-            alert("Todos los campos son obligatorios.");
-            return;
-        }
-
-        if (id && contactToEdit) {
-            // Modo edición
-            actions.updateContact(id, contact, navigate);
+        if (id) {
+            success = await actions.updateContact(id, contact);
         } else {
-            // Modo creación
-            actions.addContact(contact, navigate);
+            success = await actions.createContact(contact);
         }
+
+        if (success) navigate("/");
     };
 
     return (
-        <div className="container">
-            <h1 className="text-center mt-5">
-                {contactToEdit ? "Editar Contacto" : "Agregar Nuevo Contacto"}
-            </h1>
+        <div className="container mt-5">
+            <h1 className="text-center">{id ? "Edit Contact" : "Add a new contact"}</h1>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="fullName" className="form-label">Nombre completo</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="fullName"
-                        name="name"
-                        placeholder="Nombre completo"
-                        value={contact.name}
-                        onChange={handleChange}
-                    />
+                    <label className="form-label">Full Name</label>
+                    <input type="text" className="form-control" name="name" value={contact.name} onChange={handleChange} placeholder="Full Name" required />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Email</label>
-                    <input
-                        type="email"
-                        className="form-control"
-                        id="email"
-                        name="email"
-                        placeholder="Ej: ejemplo@dominio.com"
-                        value={contact.email}
-                        onChange={handleChange}
-                    />
+                    <label className="form-label">Email</label>
+                    <input type="email" className="form-control" name="email" value={contact.email} onChange={handleChange} placeholder="Enter email" required />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="phone" className="form-label">Teléfono</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="phone"
-                        name="phone"
-                        placeholder="Teléfono"
-                        value={contact.phone}
-                        onChange={handleChange}
-                    />
+                    <label className="form-label">Phone</label>
+                    <input type="text" className="form-control" name="phone" value={contact.phone} onChange={handleChange} placeholder="Enter phone" required />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="address" className="form-label">Dirección</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="address"
-                        name="address"
-                        placeholder="Dirección"
-                        value={contact.address}
-                        onChange={handleChange}
-                    />
+                    <label className="form-label">Address</label>
+                    <input type="text" className="form-control" name="address" value={contact.address} onChange={handleChange} placeholder="Enter address" required />
                 </div>
-                <button type="submit" className="btn btn-primary w-100">
-                    {contactToEdit ? "Guardar cambios" : "Guardar"}
-                </button>
-                <Link to="/" className="mt-3 d-block text-center">
-                    Volver a la lista de contactos
-                </Link>
+                <div className="d-grid gap-2">
+                    <button type="submit" className="btn btn-primary">Save</button>
+                </div>
             </form>
+            <Link to="/">or get back to contacts</Link>
         </div>
     );
 };
